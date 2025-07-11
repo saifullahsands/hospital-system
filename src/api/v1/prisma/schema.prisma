@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum gender_type {
+  MALE
+  FEMALE
+}
+
+enum role_type {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+model users {
+  id                   String          @id @default(uuid())
+  first_name           String?         @db.VarChar(100)
+  last_name            String?         @db.VarChar(100)
+  email                String          @unique @db.VarChar(255)
+  phone                String          @unique @db.Char(100)
+  nic                  String?         @db.Char(100)
+  dob                  DateTime?       @db.Date()
+  gender               gender_type     @default(MALE)
+  password             String          @db.VarChar(255)
+  role                 role_type
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+  doctor_details       doctor_details? @relation("DOCTOR_DETAILS")
+  doctor_appointments  appointment[]   @relation("Doctor_appointments")
+  patient_appointments appointment[]   @relation("PATIENT_APPOINTMENTS")
+
+  @@index([email, phone, id, role])
+}
+
+model doctor_details {
+  user_id        String   @id
+  doctor         users    @relation(references: [id], fields: [user_id], name: "DOCTOR_DETAILS")
+  education      String   @db.VarChar(200)
+  specialization String?  @db.VarChar(200)
+  token_price    Int
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
+
+model appointment {
+  id               Int      @id @default(autoincrement())
+  patient_name     String   @db.VarChar(200)
+  doctor_name      String   @db.VarChar(200)
+  doctor_id        String   @db.VarChar(200)
+  appointment_date DateTime
+  doctor           users    @relation(references: [id], fields: [doctor_id], name: "Doctor_appointments")
+  patient_id       String   @db.VarChar(200)
+  patients         users    @relation(fields: [patient_id], references: [id], name: "PATIENT_APPOINTMENTS")
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}

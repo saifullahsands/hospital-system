@@ -1,0 +1,5 @@
+
+/src/generated/prisma
+/src/api/v1/prisma/migrations
+.env
+node_modules

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./", 
+    "paths": {
+      "@config/*": ["src/config/*"],
+      "@constants/*": ["src/constants/*"],
+      "@api/*": ["src/api/*"],
+      "@v1_helper/*": ["src/api/v1/helper/*"],
+      "@v1_middleware/*": ["src/api/v1/middleware/*"],
+      "@v1_service/*": ["src/api/v1/service/*"],
+      "@v1_router/*":["src/api/v1/router/*"],
+      "@v1_controller/*":["src/api/v1/controller/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
