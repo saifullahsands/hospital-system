@@ -7,20 +7,17 @@ const responses = new Responses();
 class AuthMiddleware {
   authenticated = async (req, res, next) => {
     const authHeader = req.headers.authorization;
-    if (
-      !authHeader ||
-      typeof authHeader === "string" ||
-      !authHeader.startsWith("Bearer ")
-    ) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       const response = responses.unauthorized_error(
         "unAuthorized ,cookie not found"
       );
       return res.status(response.status.code).json(response);
     }
     const token = authHeader.split(" ")[1];
-    const id = await token_service.verify_access_token({ accessToken: token })
-      ?.id;
-    if (!id) {
+   
+    const payload = await token_service.verify_access_token(token);
+    console.log("payload ::::", payload);
+    if (!payload.id) {
       const response = responses.session_expired_response(
         "Access token is expired"
       );
@@ -28,7 +25,7 @@ class AuthMiddleware {
     }
 
     const user = await prisma.users.findUnique({
-      where: { id: `${id}` },
+      where: { id: `${payload.id}` },
     });
     if (!user) {
       const response = responses.unauthorized_error("User not found");
@@ -36,12 +33,13 @@ class AuthMiddleware {
     }
     req.user = { user };
     req.user.id = user.id;
+   
     next();
   };
 
-  verify_role = async (Role) => {
+  verify_role = (Role) => {
     return (req, res, next) => {
-      if (req.user.role !== Role) {
+      if (req.user.user.role !== Role) {
         const response = responses.unauthorized_error(
           `this route can only ${Role} access`
         );

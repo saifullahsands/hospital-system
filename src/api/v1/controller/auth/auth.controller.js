@@ -11,7 +11,7 @@ const token_service = new TokenService(SECRET_TOKEN_KEY);
 class AuthController {
   register_user = async (req, res, next) => {
     try {
-      const { email, password, first_name, last_name, nic, gender, phone } =
+      const { email, password, first_name, last_name, nic, gender, phone,dob } =
         req.body;
       const existingUser = await patient_helper.checking_patient_already_exist({
         email: email,
@@ -36,6 +36,7 @@ class AuthController {
         gender: gender,
         phone: phone,
         role: "PATIENT",
+        dob:dob,
       });
       const success_res = responses.create_success_response(newUser);
       return res.status(success_res.status.code).json(success_res);
@@ -75,4 +76,12 @@ class AuthController {
   };
 }
 
+
+update_user=async(req,res,next)=>{
+  try {
+    
+  } catch (error) {
+    next(error)
+  }
+}
 module.exports = AuthController;

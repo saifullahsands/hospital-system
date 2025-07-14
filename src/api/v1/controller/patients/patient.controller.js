@@ -4,6 +4,7 @@ const patientHelperService = require("@v1_helper/index");
 const patient_helper = new patientHelperService();
 const Responses = require("@constants/responses");
 const responses = new Responses();
+
 class PatientController {
   patient_home_screen = async (req, res, next) => {
     try {
@@ -11,9 +12,10 @@ class PatientController {
         req
       );
 
-      const { doctors, totalCount } = await patient_service.patient_home_screen(
-        { skip: skip, perPageRecord: perPageRecord }
-      );
+      const { doctors, totalCount } = await patient_service.get_all_doctor({
+        skip: skip,
+        perPageRecord: perPageRecord,
+      });
       const totalPage = Math.ceil(totalCount / perPageRecord);
 
       const response = responses.ok_response(
@@ -29,6 +31,51 @@ class PatientController {
         "get all doctors"
       );
       return res.status(response.status.code).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  create_appointment = async (req, res, next) => {
+    try {
+      const { doctor_name, doctor_id, appointment_date, patient_name } =
+        req.body;
+      const patient_id = req.user.id;
+      const creatAppointment = await patient_service.create_appointment({
+        patient_name: patient_name,
+        patient_id: `${patient_id}`,
+        doctor_name: doctor_name,
+        appointment_date: appointment_date,
+        doctor_id: doctor_id,
+      });
+      const createdRes = responses.create_success_response(creatAppointment);
+      return res.status(createdRes.status.code).json(createdRes);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  search_doctor = async (req, res, next) => {
+    try {
+      const { skip, page, perPageRecord } = await patient_helper.pagination(
+        req
+      );
+      const searchdr = req.query.search_doctor || "";
+      const { doctors, totalCount } = await patient_service.search_doctor(
+        searchdr,
+        skip,
+        perPageRecord
+      );
+      const totalPage = Math.ceil(totalCount / perPageRecord);
+      const okres = responses.ok_response({
+        doctors: doctors,
+        Pages: {
+          totalCount,
+          totalPage,
+          hasNextPage: page < totalPage,
+        },
+      });
+      return res.status(okres.status.code).json(okres);
     } catch (error) {
       next(error);
     }

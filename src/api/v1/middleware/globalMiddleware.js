@@ -1,6 +1,7 @@
 const { logger } = require("@config/logger");
 const { handle_prisma_error } = require("@config/prisma");
 const Responses = require("@constants/responses");
+const responses=new Responses()
 const globalMiddleware = async (error, request, response, next) => {
   if (response.headerSent) {
     return next(error);

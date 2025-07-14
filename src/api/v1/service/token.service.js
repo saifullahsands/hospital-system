@@ -10,7 +10,7 @@ class TokenService {
       expiresIn: "7d",
     });
   };
-  verify_access_token = async ({ accessToken }) => {
+  verify_access_token = async ( accessToken ) => {
     try {
       const { id, role } = await jwt.verify(accessToken, this.secret_key);
       return { id, role };

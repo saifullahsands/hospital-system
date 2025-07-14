@@ -2,7 +2,7 @@ const Responses = require("@constants/responses");
 const responses = new Responses();
 const AdminService = require("@v1_service/admin/admin.service");
 const admin_service = new AdminService();
-const AdminHelper = require("@api/v1/helper/index");
+const AdminHelper = require("@v1_helper/index");
 const admin_helper = new AdminHelper();
 const DoctorService = require("@v1_service/patient/patient.service");
 const doctor_service = new DoctorService();
@@ -40,6 +40,7 @@ class AdminController {
         first_name,
         last_name,
         role,
+        dob
       } = req.body;
       const existingDoctor = await admin_helper.checking_patient_already_exist({
         email: email,
@@ -63,6 +64,7 @@ class AdminController {
         first_name: first_name,
         last_name: last_name,
         role: role,
+        dob:dob
       });
       const response = responses.ok_response(
         null,
@@ -74,3 +76,6 @@ class AdminController {
     }
   };
 }
+
+
+module.exports=AdminController;
