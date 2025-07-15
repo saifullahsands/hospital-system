@@ -57,6 +57,16 @@ class PatientService {
     return { doctors, totalCount };
   };
 
+  checking_doctor_available=async({doctor_id})=>{
+    return await prisma.users.findUnique({
+      where:{
+        id:`${doctor_id}`
+      },
+      select:{
+        is_available:true
+      }
+    })
+  }
   create_appointment = async ({
     patient_name,
     patient_id,
@@ -64,6 +74,25 @@ class PatientService {
     appointment_date,
     doctor_id,
   }) => {
+
+    const date=new Date(appointment_date)
+    const startDate=new Date(date.setHours(0,0,0,0))
+    const endDate=new Date(date.setHours(23,59,59,999))
+
+    const existingCount=await prisma.appointment.count({
+      where:{
+        doctor_id:`${doctor_id}`,
+        appointment_date:{
+          gte:startDate,
+          lt:endDate
+        }
+      }
+    })
+    if(existingCount >= 20){
+      const error=new Error("Doctor already has 20 appointments for the day.")
+      error.status=400
+      throw error
+    }
     return await prisma.appointment.create({
       data: {
         patient_name,

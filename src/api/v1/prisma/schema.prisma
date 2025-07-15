@@ -25,23 +25,28 @@ enum role_type {
 }
 
 model users {
-  id                    String          @id @default(uuid())
-  first_name            String?         @db.VarChar(100)
-  last_name             String?         @db.VarChar(100)
-  email                 String          @unique @db.VarChar(255)
-  phone                 String          @unique @db.Char(100)
-  nic                   String?         @db.Char(100)
-  dob                   DateTime?       @db.Date()
-  gender                gender_type     @default(MALE)
-  password              String          @db.VarChar(255)
-  role                  role_type
-  created_at            DateTime        @default(now())
-  updated_at            DateTime        @updatedAt
+  id                  String      @id @default(uuid())
+  first_name          String?     @db.VarChar(100)
+  last_name           String?     @db.VarChar(100)
+  email               String      @unique @db.VarChar(255)
+  phone               String      @unique @db.Char(100)
+  nic                 String?     @db.Char(100)
+  dob                 DateTime?   @db.Date()
+  gender              gender_type @default(MALE)
+  password            String      @db.VarChar(255)
+  role                role_type
+  is_available        Boolean?    @default(false)
+  is_profile_complete Boolean?    @default(false)
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
+
   doctor_details        doctor_details? @relation("DOCTOR_DETAILS")
   doctor_appointments   appointment[]   @relation("Doctor_appointments")
   patient_appointments  appointment[]   @relation("PATIENT_APPOINTMENTS")
   doctor_prescriptions  prescriptions[] @relation("DoctorPrescriptions")
   patient_prescriptions prescriptions[] @relation("PatientPrescriptions")
+
+  doctor_timings doctor_timings[] @relation("DOCTOR_TIMING")
 
   @@index([email, phone, id, role])
 }
@@ -54,6 +59,17 @@ model doctor_details {
   token_price    Int
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
+}
+
+model doctor_timings {
+  id         Int      @id @default(autoincrement())
+  doctor_id  String?  @db.VarChar(200)
+  day        String   @db.VarChar(100)
+ start_time String   @db.VarChar(10)  // <-- changed from DateTime to String
+  end_time   String   @db.VarChar(10)
+  doctor     users?   @relation(references: [id], fields: [doctor_id], name: "DOCTOR_TIMING")
+
+  @@index([doctor_id])
 }
 
 model appointment {

@@ -11,6 +11,13 @@ class AuthService{
             }
         })
     }
+    check_user=async({user_id})=>{
+        return await prisma.users.findUnique({
+            where:{
+                id:`${user_id}`
+            }
+        })
+    }
     change_password=async({user_id,password})=>{
         return await prisma.users.update({
             where:{

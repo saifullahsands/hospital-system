@@ -15,5 +15,11 @@ patient_router.post(
   auth_middleware.verify_role("PATIENT"),
   patient_controller.create_appointment
 );
-patient_router.get("/search",auth_middleware.authenticated,auth_middleware.verify_role("PATIENT"),patient_controller.search_doctor)
+
+patient_router.get(
+  "/search",
+  auth_middleware.authenticated,
+  auth_middleware.verify_role("PATIENT"),
+  patient_controller.search_doctor
+);
 module.exports = patient_router;

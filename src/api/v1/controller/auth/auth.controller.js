@@ -7,12 +7,21 @@ const patient_service = new PatientService();
 const TokenService = require("@v1_service/token.service");
 const { SECRET_TOKEN_KEY } = require("@config/env.config");
 const token_service = new TokenService(SECRET_TOKEN_KEY);
-
+const AuthService = require("@v1_service/auth.service");
+const auth_service = new AuthService();
 class AuthController {
   register_user = async (req, res, next) => {
     try {
-      const { email, password, first_name, last_name, nic, gender, phone,dob } =
-        req.body;
+      const {
+        email,
+        password,
+        first_name,
+        last_name,
+        nic,
+        gender,
+        phone,
+        dob,
+      } = req.body;
       const existingUser = await patient_helper.checking_patient_already_exist({
         email: email,
         phone: phone,
@@ -36,7 +45,7 @@ class AuthController {
         gender: gender,
         phone: phone,
         role: "PATIENT",
-        dob:dob,
+        dob: dob,
       });
       const success_res = responses.create_success_response(newUser);
       return res.status(success_res.status.code).json(success_res);
@@ -74,14 +83,51 @@ class AuthController {
       next(error);
     }
   };
-}
 
 
-update_user=async(req,res,next)=>{
+update_user = async (req, res, next) => {
   try {
-    
+    const { first_name, last_name } = req.body;
+    const user_id = req.user.id;
+    const updateUser = await auth_service.update_user({
+      last_name: last_name,
+      first_name: first_name,
+      user_id: user_id,
+    });
+
+    const updres = responses.update_success_response(updateUser);
+    return res.status(updres.status.code).json(updres);
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
+  update_password = async (req, res, next) => {
+    try {
+      const { current_password, new_password } = req.body;
+      const user_id = req.user.id;
+      const check_user = await auth_service.check_user({ user_id: user_id });
+      const match_password = await patient_helper.comparing_password({
+        password: current_password,
+        hashing_password: check_user.password,
+      });
+      if (!match_password) {
+        const badres = responses.bad_request_error("invalid current password");
+        return res.status(badres.status.code).json(badres);
+      }
+
+      const hash_pass = await patient_helper.hashing_password({
+        password: new_password,
+      });
+      const update_user = await auth_service.change_password({
+        user_id: user_id,
+        password: hash_pass,
+      });
+      const success_res = responses.update_success_response(update_user);
+      return res.status(success_res.status.code).json(success_res);
+    } catch (error) {
+      next(error);
+    }
+  };
+  }
+
 module.exports = AuthController;

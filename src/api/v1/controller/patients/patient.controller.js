@@ -40,6 +40,13 @@ class PatientController {
     try {
       const { doctor_name, doctor_id, appointment_date, patient_name } =
         req.body;
+
+      const dr=await patient_service.checking_doctor_available({doctor_id:doctor_id})
+      if(!dr || !dr.is_available){
+        const badres=responses.bad_request_error("this time we cannot provide appointments")
+      return res.status(badres.status.code).json(badres)
+      }
+
       const patient_id = req.user.id;
       const creatAppointment = await patient_service.create_appointment({
         patient_name: patient_name,

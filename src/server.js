@@ -1,9 +1,11 @@
 require("module-alias/register");
-const { PORT}=require("@config/env.config")
+const { PORT } = require("@config/env.config");
 const { logger } = require("@config/logger");
 const { prisma } = require("@config/prisma");
 const { connection_database } = require("@config/database");
 const app = require("./app");
+require("./api/v1/cron/deleteOldAppointment");
+require("./api/v1/cron/doctor.available");
 (async function () {
   try {
     await connection_database();

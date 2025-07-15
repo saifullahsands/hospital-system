@@ -31,6 +31,23 @@ class patientHelperService {
     const skip = (page - 1) * perPageRecord;
     return { page, perPageRecord, skip };
   };
+
+  set_start_time_and_end_time = ({ start_time, end_time }) => {
+  const today = new Date();
+
+  const parseTime = (timeStr) => {
+    const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+    const date = new Date(today);
+    date.setHours(hours, minutes, seconds || 0, 0);
+    return date;
+  };
+
+  const startDate = parseTime(start_time);
+  const endDate = parseTime(end_time);
+
+  return { startDate, endDate };
+};
+
 }
 
 module.exports = patientHelperService;
