@@ -41,10 +41,14 @@ class PatientController {
       const { doctor_name, doctor_id, appointment_date, patient_name } =
         req.body;
 
-      const dr=await patient_service.checking_doctor_available({doctor_id:doctor_id})
-      if(!dr || !dr.is_available){
-        const badres=responses.bad_request_error("this time we cannot provide appointments")
-      return res.status(badres.status.code).json(badres)
+      const dr = await patient_service.checking_doctor_available({
+        doctor_id: doctor_id,
+      });
+      if (!dr || !dr.is_available) {
+        const badres = responses.bad_request_error(
+          "this time we cannot provide appointments"
+        );
+        return res.status(badres.status.code).json(badres);
       }
 
       const patient_id = req.user.id;
@@ -87,6 +91,44 @@ class PatientController {
       next(error);
     }
   };
+
+  get_all_perscriptions = async (req, res, next) => {
+    try {
+      const patient_id = req.user.id;
+      const { skip, perPageRecord, page } = await patient_helper.pagination(
+        req
+      );
+      const { prescriptions, totalCount } =
+        await patient_service.get_all_my_prescriptions({
+          patient_id: patient_id,
+          skip,
+          perPageRecord,
+        });
+      const totalPage = Math.ceil(totalCount / perPageRecord);
+
+      const okres = responses.ok_response({
+        prescriptions,
+        page: {
+          totalCount,
+          totalPage,
+          page,
+          hasNextPage: page < totalPage,
+        },
+      });
+      return res.status(okres.status.code).json(okres);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  search_prescriptions_with_doctor_name=async(req,res,next)=>{
+    try {
+      const patient_id=req.user.id;
+      
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 module.exports = PatientController;

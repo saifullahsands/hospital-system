@@ -4,8 +4,8 @@ const { prisma } = require("@config/prisma");
 cron.schedule("* * * * *", async () => {
   const now = new Date();
 
-  const startHour = 5;
-  const endHour = 12;
+  const startHour =3;
+  const endHour = 20;
   const isAvailablility = now.getHours() >= startHour && now.getHours() < endHour;
 
   try {
